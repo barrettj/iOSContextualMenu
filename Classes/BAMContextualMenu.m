@@ -97,7 +97,7 @@
 @implementation BAMContextualMenu
 
 #pragma mark Initialization Methods
-- (id)initWithContainingView:(UIView *)containingView activateOption:(BAMContextualMenuActivateOption)startActivateOption delegate:(id <BAMContextualMenuDelegate>)contextualDelegate andDataSource:(id <BAMContextualMenuDataSource>)contextualDataSource
+- (id)initWithContainingView:(UIView *)containingView rootViewController:(UIViewController*)rootViewController activateOption:(BAMContextualMenuActivateOption)startActivateOption delegate:(id <BAMContextualMenuDelegate>)contextualDelegate andDataSource:(id <BAMContextualMenuDataSource>)contextualDataSource
 {
     self = [super init];
     if (self) {
@@ -119,19 +119,8 @@
         angleOffset = 0.0;
         currentlyHighlightedMenuItemIndex = NSNotFound;
         
-        rootView = containingView;
-        do {
-            rootView = rootView.superview;
-        } while (rootView.superview != nil);
-        
-        if (rootView == nil) {
-            UIViewController* rootController = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
-            while (rootController.presentedViewController != nil) {
-                rootController = rootController.presentedViewController;
-            }
-            rootView = [rootController view];
-        }
-        
+        rootView = [rootViewController view];
+
         shadowView = [[UIView alloc] initWithFrame:rootView.bounds];
         shadowView.backgroundColor = [UIColor colorWithWhite:0.0f alpha:0.4f];
         shadowView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
@@ -149,15 +138,27 @@
     return self;
 }
 
-+ (BAMContextualMenu *)addContextualMenuToView:(UIView *)containingView delegate:(id<BAMContextualMenuDelegate>)delegate dataSource:(id<BAMContextualMenuDataSource>)dataSource activateOption:(BAMContextualMenuActivateOption)activateOption
+
++ (BAMContextualMenu *)addContextualMenuToView:(UIView *)containingView rootViewController:(UIViewController*)rootViewController delegate:(id<BAMContextualMenuDelegate>)delegate dataSource:(id<BAMContextualMenuDataSource>)dataSource activateOption:(BAMContextualMenuActivateOption)activateOption
 {
     [BAMContextualMenu removeContextualMenuFromView:containingView];
     
-    BAMContextualMenu *contextualMenu = [[BAMContextualMenu alloc] initWithContainingView:containingView activateOption:activateOption delegate:delegate andDataSource:dataSource];
+    BAMContextualMenu *contextualMenu = [[BAMContextualMenu alloc] initWithContainingView:containingView rootViewController:rootViewController activateOption:activateOption delegate:delegate andDataSource:dataSource];
     [containingView addSubview:contextualMenu];
     
     return contextualMenu;
 }
+
++ (BAMContextualMenu *)addContextualMenuToView:(UIView *)containingView delegate:(id<BAMContextualMenuDelegate>)delegate dataSource:(id<BAMContextualMenuDataSource>)dataSource activateOption:(BAMContextualMenuActivateOption)activateOption
+{
+    UIViewController* rootController = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
+    while (rootController.presentedViewController != nil) {
+        rootController = rootController.presentedViewController;
+    }
+    
+    return [self addContextualMenuToView:containingView rootViewController:rootController delegate:delegate dataSource:dataSource activateOption:activateOption];
+}
+
 
 + (BAMContextualMenu *)contextualMenuForView:(UIView *)containingView
 {

@@ -46,11 +46,20 @@ typedef enum HMContextualMenuActivateOption : NSUInteger {
 - (void)reloadDataAndRelayoutSubviews;
 
 /**
- Adds Contextual Menu
+ Adds Contextual Menu (assumes containingView will be in the top most presented view controller on main window, which will usually be true)
  @param containingView		View that the contextual menu bases most of it's stuff on. Unless the long press is inside of the containingView's bounds, the menu will not activate.
  @param activateOption		An option you can pass to control whether the menu is presented on a long press or by tapping on it. Long pressing will cause the menu to dismiss when the user lifts their finger, while the tap gesture keeps the menu up until the user either taps on a menu item or
  **/
 + (BAMContextualMenu *)addContextualMenuToView:(UIView *)containingView delegate:(id <BAMContextualMenuDelegate>)delegate dataSource:(id <BAMContextualMenuDataSource>)dataSource activateOption:(BAMContextualMenuActivateOption)activateOption;
+
+/**
+ Adds Contextual Menu allowing you to specify the root view controller (useful when adding context menus to views when a popover may be taking focus from the main window)
+ @param containingView		View that the contextual menu bases most of it's stuff on. Unless the long press is inside of the containingView's bounds, the menu will not activate.
+ @param rootViewController  The highest view controller whose view contains containingView somewhere in its view stack
+ @param activateOption		An option you can pass to control whether the menu is presented on a long press or by tapping on it. Long pressing will cause the menu to dismiss when the user lifts their finger, while the tap gesture keeps the menu up until the user either taps on a menu item or
+ **/
++ (BAMContextualMenu *)addContextualMenuToView:(UIView *)containingView rootViewController:(UIViewController*)rootViewController delegate:(id<BAMContextualMenuDelegate>)delegate dataSource:(id<BAMContextualMenuDataSource>)dataSource activateOption:(BAMContextualMenuActivateOption)activateOption;
+
 
 //Removes the contextual menu from containing view as a subview. This is in case you have need for that sort of thing. You would use this in the prepareForReuse method of your UITableViewCell or UICollectionViewReusableView subclass. Failure to do so could result in a objc_msgSend crash due to the longPressGestureRecognizer being added to the view
 + (void)removeContextualMenuFromView:(UIView *)containingView;
